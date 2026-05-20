@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二维磁场作用力可视化模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #magneticCanvas {
+            display: block;
+            background: #0a0a1a;
+            cursor: crosshair;
+        }
+
+        .control-panel {
+            width: 300px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #00d4ff;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-group h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #00d4ff;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-north {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+
+        .btn-north:hover {
+            background: linear-gradient(135deg, #ff5252, #e04141);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+
+        .btn-south {
+            background: linear-gradient(135deg, #4ecdc4, #44a3a0);
+            color: white;
+        }
+
+        .btn-south:hover {
+            background: linear-gradient(135deg, #3dbdb5, #3a9390);
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn.active {
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-container {
+            margin-bottom: 15px;
+        }
+
+        .slider-container label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        .slider-container label span {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+
+        .info-box {
+            padding: 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #00d4ff;
+        }
+
+        .info-box p {
+            font-size: 11px;
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .pole-count {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pole-count div {
+            text-align: center;
+        }
+
+        .pole-count .count {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .pole-count .north .count {
+            color: #ff6b6b;
+        }
+
+        .pole-count .south .count {
+            color: #4ecdc4;
+        }
+
+        .pole-count .label {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            border-radius: 6px;
+            font-size: 13px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .mode-indicator.north {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .mode-indicator.south {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+        }
+
+        .mode-indicator.select {
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .fps-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            z-index: 10;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-container">
+            <canvas id="magneticCanvas"></canvas>
+            <div class="mode-indicator" id="modeIndicator">选择模式</div>
+            <div class="fps-counter" id="fpsCounter">FPS: 60</div>
+        </div>
+        <div class="control-panel">
+            <h1>🧲 磁场模拟器</h1>
+            
+            <div class="control-group">
+                <h3>放置磁极</h3>
+                <button class="btn btn-north" id="addNorthBtn">➕ 添加 N极 (红色)</button>
+                <button class="btn btn-south" id="addSouthBtn">➕ 添加 S极 (青色)</button>
+            </div>
+
+            <div class="control-group">
+                <h3>磁场参数</h3>
+                <div class="slider-container">
+                    <label>磁场强度 <span id="strengthValue">1.0</span></label>
+                    <input type="range" id="strengthSlider" min="0.1" max="5" step="0.1" value="1">
+                </div>
+                <div class="slider-container">
+                    <label>磁感线密度 <span id="densityValue">24</span></label>
+                    <input type="range" id="densitySlider" min="8" max="48" step="4" value="24">
+                </div>
+                <div class="slider-container">
+                    <label>磁感线长度 <span id="lengthValue">500</span></label>
+                    <input type="range" id="lengthSlider" min="100" max="2000" step="100" value="500">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>显示选项</h3>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="showLines" checked> 显示磁感线
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="showField" checked> 显示场强分布
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="showArrows" checked> 显示方向箭头
+                </label>
+            </div>
+
+            <div class="control-group">
+                <h3>操作</h3>
+                <button class="btn btn-clear" id="clearBtn">🗑️ 清除所有磁极</button>
+            </div>
+
+            <div class="control-group">
+                <h3>统计信息</h3>
+                <div class="pole-count">
+                    <div class="north">
+                        <div class="count" id="northCount">0</div>
+                        <div class="label">N极</div>
+                    </div>
+                    <div class="south">
+                        <div class="count" id="southCount">0</div>
+                        <div class="label">S极</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>💡 <strong>操作说明：</strong></p>
+                <p>• 点击按钮选择磁极类型</p>
+                <p>• 点击画布放置磁极</p>
+                <p>• 拖动磁极改变位置</p>
+                <p>• 右键删除磁极</p>
+                <p>• 调节滑块实时观测变化</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
