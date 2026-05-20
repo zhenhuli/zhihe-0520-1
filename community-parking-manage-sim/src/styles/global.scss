@@ -1,0 +1,78 @@
+body {
+  font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.parking-slot {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.parking-slot:hover {
+  transform: scale(1.05);
+}
+
+.parking-slot.available {
+  background-color: #d4edda;
+  border: 2px solid #28a745;
+}
+
+.parking-slot.occupied {
+  background-color: #f8d7da;
+  border: 2px solid #dc3545;
+}
+
+.parking-slot.reserved {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+}
+
+.badge-pill {
+  font-size: 0.875rem;
+  padding: 0.35em 0.65em;
+}
+
+.card-shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 8px;
+}
+
+.stat-card {
+  border-left: 4px solid;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card.fixed {
+  border-left-color: #007bff;
+}
+
+.stat-card.temporary {
+  border-left-color: #28a745;
+}
+
+.stat-card.available {
+  border-left-color: #17a2b8;
+}
+
+.stat-card.income {
+  border-left-color: #ffc107;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
