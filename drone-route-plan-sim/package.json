@@ -1,0 +1,23 @@
+{
+  "name": "drone-route-plan-sim",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@unocss/nuxt": "^0.58.5",
+    "@unocss/preset-attributify": "^0.58.5",
+    "@unocss/preset-icons": "^0.58.5",
+    "@unocss/preset-uno": "^0.58.5",
+    "@vueuse/core": "^10.9.0",
+    "@vueuse/nuxt": "^10.9.0",
+    "nuxt": "^3.10.3",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  }
+}
